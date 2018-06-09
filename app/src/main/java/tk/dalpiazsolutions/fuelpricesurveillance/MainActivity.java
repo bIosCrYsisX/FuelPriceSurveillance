@@ -43,9 +43,14 @@ public class MainActivity extends AppCompatActivity {
             txtPrice.setText(getString(R.string.error));
         }
 
+        else if(mainController.getPrice() == -2)
+        {
+            txtPrice.setText(getString(R.string.noprice));
+        }
+
         else
         {
-            txtPrice.setText(Float.toString(mainController.getPrice()) + "€");
+            txtPrice.setText(getString(R.string.super95) + ": " + Float.toString(mainController.getPrice()) + "€");
         }
     }
 }

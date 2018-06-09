@@ -3,6 +3,8 @@ package tk.dalpiazsolutions.fuelpricesurveillance;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -33,9 +35,21 @@ public class MainController {
 
     public float getPrice()
     {
+        Calendar calendar = new GregorianCalendar();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+
+        Log.i("hours", Integer.toString(hour));
+        Log.i("minutes", Integer.toString(minutes));
+
+        if(hour == 12 && (minutes >= 0 && minutes <= 10))
+        {
+            return -2;
+        }
+
         fuelDownloader = new FuelDownloader();
         try {
-            mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.4160&lat=48.3536&show=0&treibstoff=super95&switch").get());
+            mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.425511499999999&lat=48.331878999999994&show=0&treibstoff=super95&switch").get());
             Log.i("completeSite", mainModel.getCompleteSite());
             trimToPrice();
             savePrice(mainModel.getPrice(), mainModel.getCounter());
@@ -84,7 +98,7 @@ public class MainController {
     {
         if(fuelService != null)
         {
-            if (mainModel.getPrice() <= 1.25)
+            if (mainModel.getPrice() <= 1.27)
             {
                 Intent notificationIntent = new Intent(fuelService.getApplicationContext(), NotificationService.class);
                 notificationIntent.putExtra("title", fuelService.getString(R.string.pricealert));
