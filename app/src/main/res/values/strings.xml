@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FuelPriceSurveillance</string>
+    <string name="startService">Start service</string>
+    <string name="pricealert">Preisalarm!</string>
+    <string name="actualprice">Aktueller Preis:</string>
+    <string name="error">Error</string>
+</resources>
