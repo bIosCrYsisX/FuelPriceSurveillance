@@ -21,11 +21,6 @@ public class FuelService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Intent notificationIntent = new Intent(getApplicationContext(), NotificationService.class);
-        notificationIntent.putExtra("title", "Service");
-        notificationIntent.putExtra("text", "started");
-        startService(notificationIntent);
-
         mainController = new MainController(this);
         timer = new Timer();
 

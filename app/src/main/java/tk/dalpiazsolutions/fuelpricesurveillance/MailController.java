@@ -30,7 +30,7 @@ public class MailController {
         context.startActivity(Intent.createChooser(mailIntent, "Sende Mail..."));
     }
 
-    public void sendValuesMail(String[] values)
+    public void sendValuesMail(String values)
     {
         Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
         mailIntent.setType("message/rfc822");
@@ -41,12 +41,12 @@ public class MailController {
         context.startActivity(Intent.createChooser(mailIntent, "Sende Mail..."));
     }
 
-    public String[] getValues(int counter)
+    public String getValues(int counter)
     {
-        String[] values = new String[counter + 1];
-        for(int i = 0; i <= counter; i++)
+        String values = "";
+        for(int i = 1; i <= counter; i++)
         {
-            values[counter] = Float.toString(preferenceManager.getValue(i));
+            values = values + System.getProperty("line.separator") +  Float.toString(preferenceManager.getValue(i)) + "   " + preferenceManager.getTime(i + 100);
         }
 
         return values;

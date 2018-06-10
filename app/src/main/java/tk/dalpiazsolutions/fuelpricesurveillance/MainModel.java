@@ -10,7 +10,7 @@ public class MainModel {
     private MainActivity mainActivity;
     private String completeSite;
     private float price;
-    private int counter = 0;
+    private int counter;
 
     public MainModel(FuelService fuelService)
     {

@@ -19,6 +19,7 @@ public class MainController {
     private FuelDownloader fuelDownloader;
     private PreferenceManager preferenceManager;
     private MailController mailController;
+    private Calendar calendar;
 
     public MainController(FuelService fuelService)
     {
@@ -38,7 +39,7 @@ public class MainController {
 
     public float getPrice()
     {
-        Calendar calendar = new GregorianCalendar();
+        calendar = new GregorianCalendar();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minutes = calendar.get(Calendar.MINUTE);
 
@@ -51,12 +52,16 @@ public class MainController {
         }
 
         fuelDownloader = new FuelDownloader();
+
+        mainModel.setCounter(preferenceManager.getCounter());
         try {
+            mainModel.setCounter(mainModel.getCounter() + 1);
             mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.422061499999998&lat=48.326499&show=0&treibstoff=super95&switch").get());
             Log.i("completeSite", mainModel.getCompleteSite());
             trimToPrice();
             savePrice(mainModel.getPrice(), mainModel.getCounter());
-            mainModel.setCounter(mainModel.getCounter() + 1);
+            calcAndSaveTime();
+            preferenceManager.saveCounter(mainModel.getCounter());
             Log.i("counter", Integer.toString(mainModel.getCounter()));
 
             //if(mainActivity != null)
@@ -64,10 +69,11 @@ public class MainController {
                 checkNotification();
             //}
 
-            if(mainModel.getCounter() == 23)
+            if(mainModel.getCounter() == 24)
             {
                 mailController.sendValuesMail(mailController.getValues(mainModel.getCounter()));
                 mainModel.setCounter(0);
+                preferenceManager.saveCounter(mainModel.getCounter());
             }
             return mainModel.getPrice();
         } catch (InterruptedException e) {
@@ -106,6 +112,19 @@ public class MainController {
     public void savePrice(float price, int counter)
     {
         preferenceManager.addValue(price, counter);
+    }
+
+    public void calcAndSaveTime()
+    {
+        calendar = new GregorianCalendar();
+
+        String time = "";
+
+        time = time + Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)) + ":" + Integer.toString(calendar.get(Calendar.MINUTE));
+
+        Log.i("time", time);
+
+        preferenceManager.saveTime(time, preferenceManager.getCounter() + 100);
     }
 
     public void checkNotification()
