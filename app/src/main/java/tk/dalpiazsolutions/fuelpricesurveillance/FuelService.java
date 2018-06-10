@@ -13,21 +13,25 @@ import android.support.annotation.Nullable;
 public class FuelService extends Service {
 
     private MainController mainController;
-    private final Handler handler = new Handler();
+    private Handler handler;
     private Runnable runnable;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mainController = new MainController(this);
-        handler.postDelayed(runnable, 1000);
+        handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
+                Intent notificationIntent = new Intent(getApplicationContext(), NotificationService.class);
+                notificationIntent.putExtra("title", "Service");
+                notificationIntent.putExtra("text", "started");
+                startService(notificationIntent);
                 mainController.getPrice();
                 handler.postDelayed(runnable, 3600000);
             }
         };
-
+        handler.postDelayed(runnable, 1000);
         return super.onStartCommand(intent, flags, startId);
     }
 

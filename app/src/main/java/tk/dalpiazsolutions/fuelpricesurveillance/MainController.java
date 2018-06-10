@@ -18,10 +18,12 @@ public class MainController {
     private MainModel mainModel;
     private FuelDownloader fuelDownloader;
     private PreferenceManager preferenceManager;
+    private MailController mailController;
 
     public MainController(FuelService fuelService)
     {
         this.fuelService = fuelService;
+        this.mailController = new MailController(fuelService);
         mainModel = new MainModel(fuelService);
         preferenceManager = new PreferenceManager(fuelService);
     }
@@ -29,6 +31,7 @@ public class MainController {
     public MainController(MainActivity mainActivity)
     {
         this.mainActivity = mainActivity;
+        this.mailController = new MailController(mainActivity);
         mainModel = new MainModel(mainActivity);
         preferenceManager = new PreferenceManager(mainActivity);
     }
@@ -49,12 +52,18 @@ public class MainController {
 
         fuelDownloader = new FuelDownloader();
         try {
-            mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.425511499999999&lat=48.331878999999994&show=0&treibstoff=super95&switch").get());
+            mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.422061499999998&lat=48.326499&show=0&treibstoff=super95&switch").get());
             Log.i("completeSite", mainModel.getCompleteSite());
             trimToPrice();
             savePrice(mainModel.getPrice(), mainModel.getCounter());
             mainModel.setCounter(mainModel.getCounter() + 1);
+            Log.i("counter", Integer.toString(mainModel.getCounter()));
             checkNotification();
+            if(mailController.checkCounter(mainModel.getCounter()) == 1)
+            {
+                mailController.sendValuesMail(mailController.getValues(mainModel.getCounter()));
+                mainModel.setCounter(0);
+            }
             return mainModel.getPrice();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -106,7 +115,7 @@ public class MainController {
                 fuelService.startService(notificationIntent);
             }
 
-            else if ((mainModel.getCounter() % 3) == 0)
+            else
             {
                 Intent notificationIntent = new Intent(fuelService.getApplicationContext(), NotificationService.class);
                 notificationIntent.putExtra("title", fuelService.getString(R.string.actualprice));

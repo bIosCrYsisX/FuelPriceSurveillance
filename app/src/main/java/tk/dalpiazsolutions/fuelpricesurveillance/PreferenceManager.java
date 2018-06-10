@@ -23,4 +23,9 @@ public class PreferenceManager {
         SharedPreferences.Editor editor = prefsPrice.edit();
         editor.putFloat(Integer.toString(counter), value);
     }
+
+    public float getValue(int position)
+    {
+        return prefsPrice.getFloat(Integer.toString(position), 0);
+    }
 }

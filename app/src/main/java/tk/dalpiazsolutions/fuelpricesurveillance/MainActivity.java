@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     Button buttonStartService;
     TextView txtPrice;
     MainController mainController;
+    MailController mailController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mainController = new MainController(this);
+        mailController = new MailController(this);
 
         txtPrice = findViewById(R.id.textPrice);
         buttonStartService = findViewById(R.id.buttonStartService);
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), FuelService.class);
                 startService(intent);
                 Toast.makeText(getApplicationContext(), "Service started", Toast.LENGTH_LONG).show();
+                mailController.serviceStartedMail();
             }
         });
     }
