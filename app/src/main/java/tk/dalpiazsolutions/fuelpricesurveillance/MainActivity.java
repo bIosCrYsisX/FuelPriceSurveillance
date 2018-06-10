@@ -35,25 +35,22 @@ public class MainActivity extends AppCompatActivity {
                 mailController.serviceStartedMail();
             }
         });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+        float price = mainController.getPrice();
 
-        if(mainController.getPrice() == -1)
+        if(price == -1)
         {
             txtPrice.setText(getString(R.string.error));
         }
 
-        else if(mainController.getPrice() == -2)
+        else if(price == -2)
         {
             txtPrice.setText(getString(R.string.noprice));
         }
 
         else
         {
-            txtPrice.setText(getString(R.string.super95) + ": " + Float.toString(mainController.getPrice()) + "€");
+            txtPrice.setText(getString(R.string.super95) + ": " + Float.toString(price) + "€");
         }
     }
 }

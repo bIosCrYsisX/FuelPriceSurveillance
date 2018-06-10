@@ -58,8 +58,13 @@ public class MainController {
             savePrice(mainModel.getPrice(), mainModel.getCounter());
             mainModel.setCounter(mainModel.getCounter() + 1);
             Log.i("counter", Integer.toString(mainModel.getCounter()));
-            checkNotification();
-            if(mailController.checkCounter(mainModel.getCounter()) == 1)
+
+            //if(mainActivity != null)
+            //{
+                checkNotification();
+            //}
+
+            if(mainModel.getCounter() == 23)
             {
                 mailController.sendValuesMail(mailController.getValues(mainModel.getCounter()));
                 mainModel.setCounter(0);

@@ -41,19 +41,6 @@ public class MailController {
         context.startActivity(Intent.createChooser(mailIntent, "Sende Mail..."));
     }
 
-    public int checkCounter(int counter)
-    {
-        if(counter == 23)
-        {
-            return 1;
-        }
-
-        else
-        {
-            return 0;
-        }
-    }
-
     public String[] getValues(int counter)
     {
         String[] values = new String[counter + 1];
