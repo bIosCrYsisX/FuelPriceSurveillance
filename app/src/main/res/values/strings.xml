@@ -5,5 +5,8 @@
     <string name="actualprice">Aktueller Preis:</string>
     <string name="error">Error</string>
     <string name="noprice">Kein Preis zwischen 12:00 und 12:10</string>
+    <string name="nopricetwo">Kein Preis vorhanden</string>
     <string name="super95">Super 95</string>
+    <string name="dateString">%d:%d:%d</string>
+    <string name="dataString">%f, %s, %s</string>
 </resources>
