@@ -4,16 +4,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import androidx.room.Room;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -39,17 +34,18 @@ public class MainController {
     private FuelDownloader fuelDownloader;
     private PreferenceManager preferenceManager;
     private MailController mailController;
+    private Context context;
     private AlarmManager priceManager;
     private PendingIntent priceIntent;
     private Calendar calendar;
     private PriceDatabase priceDB;
     private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private String time;
-    private String path;
 
     public MainController(FuelService fuelService)
     {
         this.fuelService = fuelService;
+        this.context = fuelService;
         this.mailController = new MailController(fuelService);
         mainModel = new MainModel(fuelService);
         preferenceManager = new PreferenceManager(fuelService);
@@ -58,15 +54,30 @@ public class MainController {
     public MainController(MainActivity mainActivity)
     {
         this.mainActivity = mainActivity;
+        this.context = mainActivity;
         this.mailController = new MailController(mainActivity);
         mainModel = new MainModel(mainActivity);
         preferenceManager = new PreferenceManager(mainActivity);
-        priceDB = Room.databaseBuilder(mainActivity, PriceDatabase.class, "priceDB")
+        priceDB = Room.databaseBuilder(mainActivity.getApplicationContext(), PriceDatabase.class, "priceDB")
                 .allowMainThreadQueries()
                 .build();
-        priceManager = (AlarmManager) mainActivity.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(mainActivity, AlarmReceiver.class);
-        priceIntent = PendingIntent.getBroadcast(mainActivity, 0, intent, 0);
+        priceManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context.getApplicationContext(), AlarmReceiver.class);
+        priceIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, 0);
+    }
+
+    public MainController(Context context)
+    {
+        this.context = context;
+        this.mailController = new MailController(context);
+        mainModel = new MainModel(mainActivity);
+        preferenceManager = new PreferenceManager(context);
+        priceDB = Room.databaseBuilder(context.getApplicationContext(), PriceDatabase.class, "priceDB")
+                .allowMainThreadQueries()
+                .build();
+        priceManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context.getApplicationContext(), AlarmReceiver.class);
+        priceIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, 0);
     }
 
     public void insertPrice()
@@ -81,15 +92,26 @@ public class MainController {
             ItemDAO itemDAO = priceDB.getItemDAO();
             Item item = new Item();
             item.setPrice(getPrice());
-            item.setDate(String.format(Locale.getDefault(), mainActivity.getString(R.string.dateString), date.getDay(), date.getMonth() + 1, date.getYear()));
+            Log.i("year", Integer.toString(date.getYear()));
+            item.setDate(String.format(Locale.getDefault(), context.getString(R.string.dateString), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR)));
             item.setTime(dateFormat.format(date));
             itemDAO.insert(item);
         }
     }
 
+    public void nukeTable()
+    {
+        ItemDAO itemDAO = priceDB.getItemDAO();
+        itemDAO.nukeTable();
+        listPrices();
+    }
+
     public void startMonitoring()
     {
-        priceManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 3*60*60*1000, priceIntent);
+        Log.i("STARTEDM", "started");
+        Calendar now = Calendar.getInstance();
+        priceManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, now.getTimeInMillis() - 60000,3*60*60*1000, priceIntent);
+        listPrices();
     }
 
     public List<Item> getPrices()
@@ -100,13 +122,15 @@ public class MainController {
 
     public void listPrices()
     {
+        Log.i("there", "there");
         ItemDAO itemDAO = priceDB.getItemDAO();
         List<Item> prices = itemDAO.getItems();
         List<String> textPrices = new LinkedList<>();
-
+        Log.i("here", "here");
         for(int i = 0; i < prices.size(); i++)
         {
-            textPrices.set(i, String.format(Locale.getDefault(), mainActivity.getString(R.string.dataString), prices.get(i).getPrice(), prices.get(i).getTime(), prices.get(i).getDate()));
+            Log.i("price", prices.get(i).toString());
+            textPrices.add(String.format(Locale.getDefault(), context.getString(R.string.dataString), prices.get(i).getPrice(), prices.get(i).getTime(), prices.get(i).getDate()));
         }
 
         mainActivity.setArrayAdapter(new ArrayAdapter(mainActivity, android.R.layout.simple_list_item_1, textPrices));
@@ -132,7 +156,7 @@ public class MainController {
         try {
             mainModel.setCounter(mainModel.getCounter() + 1);
             mainModel.setCompleteSite(fuelDownloader.execute("https://tankbillig.in/index.php?long=14.422061499999998&lat=48.326499&show=0&treibstoff=super95&switch").get());
-            Log.i("completeSite", mainModel.getCompleteSite());
+            //Log.i("completeSite", mainModel.getCompleteSite());
             trimToPrice();
             savePrice(mainModel.getPrice(), mainModel.getCounter());
             calcAndSaveTime();
@@ -141,7 +165,7 @@ public class MainController {
 
             //if(mainActivity != null)
             //{
-                checkNotification();
+                //checkNotification();
             //}
 
             return mainModel.getPrice();
@@ -179,8 +203,6 @@ public class MainController {
             priceCorrect[2] = price.charAt(i - 4);
             priceCorrect[3] = price.charAt(i - 3);
             priceCorrect[4] = price.charAt(i - 2);
-
-            Log.i("match", "match");
 
             Log.i("price", new String(priceCorrect));
             mainModel.setPrice(Float.parseFloat(new String(priceCorrect)));

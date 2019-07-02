@@ -22,4 +22,6 @@ public interface ItemDAO {
     public List<Item> getItems();
     @Query("SELECT * FROM prices WHERE id = :id")
     public Item getItemById(Long id);
+    @Query("DELETE FROM prices")
+    public void nukeTable();
 }

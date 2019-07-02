@@ -4,17 +4,21 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     Button buttonStartService;
+    Button buttonNukeTable;
     TextView txtPrice;
     MainController mainController;
     MailController mailController;
@@ -43,16 +47,10 @@ public class MainActivity extends AppCompatActivity {
         mainController = new MainController(this);
         mailController = new MailController(this);
 
+        priceView = findViewById(R.id.priceView);
         txtPrice = findViewById(R.id.textPrice);
         buttonStartService = findViewById(R.id.buttonStartService);
-        priceView = findViewById(R.id.priceView);
-
-        buttonStartService.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mainController.startMonitoring();
-            }
-        });
+        buttonNukeTable = findViewById(R.id.buttonNukeTable);
 
         float price = mainController.getPrice();
 
@@ -75,11 +73,25 @@ public class MainActivity extends AppCompatActivity {
         {
             txtPrice.setText(getString(R.string.super95) + ": " + Float.toString(price) + "€");
         }
+
+        mainController.listPrices();
     }
 
     public void setArrayAdapter(ArrayAdapter arrayAdapter)
     {
         priceAdapter = arrayAdapter;
         priceView.setAdapter(priceAdapter);
+    }
+
+    public void startMonitoring(View view)
+    {
+        Toast.makeText(getApplicationContext(), "Started", Toast.LENGTH_LONG).show();
+        Log.i("STARTED", "started");
+        mainController.startMonitoring();
+    }
+
+    public void nukeTable(View view)
+    {
+        mainController.nukeTable();
     }
 }

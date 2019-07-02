@@ -8,5 +8,6 @@
     <string name="nopricetwo">Kein Preis vorhanden</string>
     <string name="super95">Super 95</string>
     <string name="dateString">%d:%d:%d</string>
-    <string name="dataString">%f, %s, %s</string>
+    <string name="dataString">%.3f, %s, %s</string>
+    <string name="delete">Delete values</string>
 </resources>
