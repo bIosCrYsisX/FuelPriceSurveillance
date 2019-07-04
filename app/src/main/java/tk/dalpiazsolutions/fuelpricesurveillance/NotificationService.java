@@ -23,7 +23,7 @@ public class NotificationService extends Service {
         public int onStartCommand(Intent intent, int flags, int startId) {
             String title = intent.getStringExtra("title");
             String text = intent.getStringExtra("text");
-            notify(title, text);
+            notify(title, text, intent);
 
             stopSelf();
             return super.onStartCommand(intent, flags, startId);
@@ -35,8 +35,7 @@ public class NotificationService extends Service {
             return null;
         }
 
-        private void notify(String title, String text) {
-            Intent intent = new Intent(this, FuelService.class);
+        private void notify(String title, String text, Intent intent) {
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
             String channelId = "channel1";
 

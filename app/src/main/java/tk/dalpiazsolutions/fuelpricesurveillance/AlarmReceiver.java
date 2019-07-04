@@ -8,11 +8,16 @@ import android.util.Log;
 public class AlarmReceiver extends BroadcastReceiver {
 
     private MainController mainController;
+    private float price;
+    private float cheapestPrice;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("alarm", "RECEIVED");
         mainController = new MainController(context);
-        mainController.insertPrice();
+        price = mainController.getPrice(false);
+        cheapestPrice = mainController.getPrice(true);
+        mainController.insertPrice(price);
+        mainController.insertPrice(cheapestPrice);
     }
 }

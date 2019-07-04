@@ -3,11 +3,16 @@
     <string name="startService">Start service</string>
     <string name="pricealert">Preisalarm!</string>
     <string name="actualprice">Aktueller Preis:</string>
+    <string name="omv">OMV - Engerwitzdorf</string>
+    <string name="priceValue">%.3f</string>
     <string name="error">Error</string>
     <string name="noprice">Kein Preis zwischen 12:00 und 12:10</string>
     <string name="nopricetwo">Kein Preis vorhanden</string>
-    <string name="super95">Super 95</string>
+    <string name="closed">Tankstelle zwischen 22:00 und 06:00 geschlossen</string>
+    <string name="super95Exact">Super 95: %.3f €</string>
+    <string name="super95NotExact">Super 95: >= %.3f €</string>
     <string name="dateString">%d:%d:%d</string>
-    <string name="dataString">%.3f, %s, %s</string>
+    <string name="dataStringExact">%.3f, %s, %s, %s</string>
+    <string name="dataStringNotExact">>=%.3f, %s, %s, %s</string>
     <string name="delete">Delete values</string>
 </resources>

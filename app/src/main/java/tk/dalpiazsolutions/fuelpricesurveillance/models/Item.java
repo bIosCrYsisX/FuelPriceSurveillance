@@ -18,6 +18,28 @@ public class Item {
     @ColumnInfo(name = "date")
     private String date;
 
+    @ColumnInfo(name = "tankName")
+    private String tankName;
+
+    public boolean isNotExact() {
+        return notExact;
+    }
+
+    public void setNotExact(boolean notExact) {
+        this.notExact = notExact;
+    }
+
+    @ColumnInfo(name = "notExact")
+    private boolean notExact;
+
+    public String getTankName() {
+        return tankName;
+    }
+
+    public void setTankName(String tankName) {
+        this.tankName = tankName;
+    }
+
     public void setPrice(float price) {
         this.price = price;
     }

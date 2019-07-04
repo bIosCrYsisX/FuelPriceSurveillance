@@ -3,10 +3,8 @@ package tk.dalpiazsolutions.fuelpricesurveillance;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import androidx.annotation.Nullable;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import androidx.annotation.Nullable;
 
 /**
  * Created by Christoph on 08.06.2018.
@@ -14,24 +12,12 @@ import java.util.TimerTask;
 
 public class FuelService extends Service {
 
-    private MainController mainController;
-    private Timer timer;
-    private TimerTask timerTask;
+    private Notifier notifier;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        mainController = new MainController(this);
-        timer = new Timer();
-
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                mainController.getPrice();
-            }
-        };
-        timer.schedule(timerTask, 1000, 3600000);
-
+        notifier = new Notifier(this);
+        notifier.throwNotification(intent.getStringExtra("title"), intent.getStringExtra("text"));
         return super.onStartCommand(intent, flags, startId);
     }
 

@@ -15,6 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     Button buttonStartService;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         buttonStartService = findViewById(R.id.buttonStartService);
         buttonNukeTable = findViewById(R.id.buttonNukeTable);
 
-        float price = mainController.getPrice();
+        float price = mainController.getPrice(false);
 
         if(price == -1)
         {
@@ -71,7 +73,15 @@ public class MainActivity extends AppCompatActivity {
 
         else
         {
-            txtPrice.setText(getString(R.string.super95) + ": " + Float.toString(price) + "€");
+            if(mainController.isNotExact())
+            {
+                txtPrice.setText(String.format(Locale.getDefault(), getString(R.string.super95NotExact), price));
+            }
+
+            else
+            {
+                txtPrice.setText(String.format(Locale.getDefault(), getString(R.string.super95Exact), price));
+            }
         }
 
         mainController.listPrices();

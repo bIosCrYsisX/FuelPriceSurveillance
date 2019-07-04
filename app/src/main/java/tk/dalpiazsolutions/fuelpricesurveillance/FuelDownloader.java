@@ -33,15 +33,28 @@ public class FuelDownloader extends AsyncTask<String, Void, String> {
             InputStream inputStream = connection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-            while((line = bufferedReader.readLine()) != null && !line.contains("OMV"))
+            if(urls.length == 1)
             {
-                //Log.i("line", line);
-                result.append(line);
-                lineBefore = line;
+                while((line = bufferedReader.readLine()) != null)
+                {
+                    //Log.i("line", line);
+                    result.append(line);
+                }
+                return result.toString();
             }
 
-            //Log.i("site", result.toString());
-            return lineBefore;
+            else {
+                //while((line = bufferedReader.readLine()) != null && !line.contains("OMV - Engerwitzdorf"))
+                while ((line = bufferedReader.readLine()) != null && !line.contains(urls[1]))
+                {
+                    //Log.i("line", line);
+                    result.append(line);
+                    lineBefore = line;
+                }
+
+                //Log.i("site", result.toString());
+                return lineBefore;
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
