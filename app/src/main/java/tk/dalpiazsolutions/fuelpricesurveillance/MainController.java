@@ -4,9 +4,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import androidx.room.Room;
 
@@ -42,6 +47,7 @@ public class MainController {
     private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private String tankName = "";
     private boolean notExact = false;
+    private boolean state = false;
 
 
     public MainController(MainActivity mainActivity)
@@ -108,7 +114,64 @@ public class MainController {
                     }
                 }
             }
+
+            if(getPrices().size() >= 48)
+            {
+                if(uploadDB())
+                {
+                    nukeTable();
+                }
+            }
         }
+    }
+
+    public boolean uploadDB()
+    {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        WifiManager wifiMgr = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        Log.i("ONE", "ONE");
+        if (wifiMgr.isWifiEnabled())
+        {
+            Log.i("TWO", "TWO");
+            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+
+            if (wifiInfo.getNetworkId() != -1)
+            {
+                String ssid = info.getExtraInfo().substring(1, info.getExtraInfo().length() - 1);
+                Log.i("SSID", ssid);
+                Log.i("SSID", context.getString(R.string.SSID));
+
+                if(ssid.equals(context.getString(R.string.SSID)))
+                {
+                    Log.i("equal", "equal");
+
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i("Thread", "started");
+                            DBUploader dbUploader = new DBUploader(context);
+                            changeState(dbUploader.uploadDB());
+                            Log.i("state", Boolean.toString(state));
+                        }
+                    });
+                    thread.start();
+
+                    while (thread.isAlive())
+                    {
+
+                    }
+
+                    return state;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void changeState(boolean state)
+    {
+        this.state = state;
     }
 
     public void nukeTable()

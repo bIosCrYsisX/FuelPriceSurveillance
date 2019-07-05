@@ -15,4 +15,8 @@
     <string name="dataStringExact">%.3f, %s, %s, %s</string>
     <string name="dataStringNotExact">>=%.3f, %s, %s, %s</string>
     <string name="delete">Delete values</string>
+    <string name="noUpload">Couldn´t upload DB</string>
+    <string name="fileName">%d</string>
+    <string name="fileNameWAL">%d-wal</string>
+    <string name="fileNameSHM">%d-shm</string>
 </resources>

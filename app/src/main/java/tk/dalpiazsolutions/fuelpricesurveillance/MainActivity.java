@@ -102,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void nukeTable(View view)
     {
-        mainController.nukeTable();
+        if(mainController.uploadDB())
+        {
+            mainController.nukeTable();
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(), getString(R.string.noUpload), Toast.LENGTH_SHORT).show();
+        }
     }
 }
