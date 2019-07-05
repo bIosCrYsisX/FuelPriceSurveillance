@@ -11,7 +11,6 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.room.Room;
 
@@ -157,9 +156,10 @@ public class MainController {
                     });
                     thread.start();
 
-                    while (thread.isAlive())
-                    {
-
+                    try {
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
 
                     return state;
