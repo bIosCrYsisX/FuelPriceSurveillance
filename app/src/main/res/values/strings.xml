@@ -19,4 +19,5 @@
     <string name="fileName">%d</string>
     <string name="fileNameWAL">%d-wal</string>
     <string name="fileNameSHM">%d-shm</string>
+    <string name="news">"%s" könnte sich auf den Kraftstoffpreis auswirken</string>
 </resources>

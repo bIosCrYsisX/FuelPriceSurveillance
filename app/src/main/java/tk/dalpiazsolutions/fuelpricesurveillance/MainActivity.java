@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        mainController.getArticles();
+        mainController.listArticles();
         mainController.listPrices();
     }
 

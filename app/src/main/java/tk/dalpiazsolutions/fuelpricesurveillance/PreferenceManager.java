@@ -3,6 +3,8 @@ package tk.dalpiazsolutions.fuelpricesurveillance;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Calendar;
+
 /**
  * Created by Christoph on 08.06.2018.
  */
@@ -52,5 +54,27 @@ public class PreferenceManager {
     public String getTime(int index)
     {
         return prefsPrice.getString(Integer.toString(index), "notime");
+    }
+
+    public boolean getNotified()
+    {
+        Calendar calendar = Calendar.getInstance();
+
+        if(prefsPrice.getInt("dayNotified", 0) == calendar.get(Calendar.DAY_OF_MONTH))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void setNotified()
+    {
+        Calendar calendar = Calendar.getInstance();
+        SharedPreferences.Editor editor = prefsPrice.edit();
+        editor.putInt("dayNotified", calendar.get(Calendar.DAY_OF_MONTH));
+        editor.apply();
     }
 }

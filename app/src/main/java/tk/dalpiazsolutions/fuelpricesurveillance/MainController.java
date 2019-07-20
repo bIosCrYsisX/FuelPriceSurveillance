@@ -24,8 +24,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.sql.StatementEvent;
+
+import tk.dalpiazsolutions.fuelpricesurveillance.dao.ArticleDAO;
 import tk.dalpiazsolutions.fuelpricesurveillance.dao.ItemDAO;
+import tk.dalpiazsolutions.fuelpricesurveillance.models.Article;
 import tk.dalpiazsolutions.fuelpricesurveillance.models.Item;
 
 /**
@@ -43,6 +49,7 @@ public class MainController {
     private PendingIntent priceIntent;
     private Calendar calendar;
     private PriceDatabase priceDB;
+    private ArticleDatabase articleDB;
     private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private String tankName = "";
     private boolean notExact = false;
@@ -59,6 +66,10 @@ public class MainController {
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
+        articleDB = Room.databaseBuilder(context.getApplicationContext(), ArticleDatabase.class, "articleDB")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build();
         priceManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context.getApplicationContext(), AlarmReceiver.class);
         priceIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, 0);
@@ -70,6 +81,10 @@ public class MainController {
         mainModel = new MainModel(mainActivity);
         preferenceManager = new PreferenceManager(context);
         priceDB = Room.databaseBuilder(context.getApplicationContext(), PriceDatabase.class, "priceDB")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build();
+        articleDB = Room.databaseBuilder(context.getApplicationContext(), ArticleDatabase.class, "articleDB")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
@@ -307,6 +322,61 @@ public class MainController {
 
             Log.i("price", new String(priceCorrect));
             mainModel.setPrice(Float.parseFloat(new String(priceCorrect)));
+        }
+    }
+
+    public void getArticles()
+    {
+        fuelDownloader = new FuelDownloader();
+        try {
+            String site = fuelDownloader.execute(context.getString(R.string.newsURL), "articles").get();
+            Log.i("SITE", site);
+            Pattern pattern = Pattern.compile("aria-expanded=\"false\">(.*?)</a>");
+            Matcher matcher = pattern.matcher(site);
+
+            LinkedList<String> articles = new LinkedList<>();
+            while (matcher.find())
+            {
+                articles.add(matcher.group(1));
+            }
+
+            for(int i = 0; i < articles.size(); i++)
+            {
+                Log.i("article", articles.get(i));
+                if(articles.get(i).toLowerCase().contains("öl") || articles.get(i).toLowerCase().contains("benzin") || articles.get(i).toLowerCase().contains("diesel") || articles.get(i).toLowerCase().contains("kraftstoff") || articles.get(i).toLowerCase().contains("tanker") || articles.get(i).toLowerCase().contains("bombe"))
+                {
+                    if(!preferenceManager.getNotified())
+                    {
+                        Calendar calendar = Calendar.getInstance();
+                        String date = String.format(Locale.getDefault(), "%d:%d:%d", calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR));
+                        Article article = new Article();
+                        article.setText(articles.get(i));
+                        article.setDate(date);
+                        ArticleDAO articleDAO = articleDB.getArticleDAO();
+                        articleDAO.insert(article);
+
+
+                        Notifier notifier = new Notifier(context);
+                        notifier.throwNotification("News", String.format(Locale.getDefault(), context.getString(R.string.news), articles.get(i)));
+                        preferenceManager.setNotified();
+                    }
+                }
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void listArticles()
+    {
+        ArticleDAO articleDAO = articleDB.getArticleDAO();
+        List<Article> articles = articleDAO.getArticles();
+        //List<String> textArticles = new LinkedList<>();
+        for(int i = 0; i < articles.size(); i++)
+        {
+            Log.i("ARTICLE:", articles.get(i).getText());
         }
     }
 
