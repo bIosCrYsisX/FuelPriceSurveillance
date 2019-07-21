@@ -353,6 +353,8 @@ public class MainController {
 
     public void getArticles()
     {
+        boolean relevant = false;
+        int x = 0;
         fuelDownloader = new FuelDownloader();
         try {
             String site = fuelDownloader.execute(context.getString(R.string.newsURL), "articles").get();
@@ -370,7 +372,20 @@ public class MainController {
             for(int i = 0; i < articles.size(); i++)
             {
                 Log.i("article", articles.get(i));
-                if(articles.get(i).toLowerCase().contains("öl") || articles.get(i).toLowerCase().contains("benzin") || articles.get(i).toLowerCase().contains("diesel") || articles.get(i).toLowerCase().contains("kraftstoff") || articles.get(i).toLowerCase().contains("tanker") || articles.get(i).toLowerCase().contains("bombe"))
+                String[] parts = context.getString(R.string.keywords).split(",");
+                relevant = false;
+                x = 0;
+
+                while(x < parts.length && !relevant)
+                {
+                    Log.i("PARTS", parts[x]);
+                    if(articles.get(i).toLowerCase().contains(parts[x]))
+                    {
+                        relevant = true;
+                    }
+                    x++;
+                }
+                if(relevant)
                 {
                     Calendar calendar = Calendar.getInstance();
                     String date = String.format(Locale.getDefault(), "%d:%d:%d", calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR));
@@ -381,9 +396,9 @@ public class MainController {
 
                     List<Article> savedArticles = articleDAO.getArticles();
 
-                    for(int x = 0; x < savedArticles.size(); x++)
+                    for(int y = 0; y < savedArticles.size(); y++)
                     {
-                        if(savedArticles.get(x).getText().equals(article.getText()))
+                        if(savedArticles.get(y).getText().equals(article.getText()))
                         {
                             alreadySaved = true;
                         }
@@ -449,23 +464,4 @@ public class MainController {
     public boolean isNotExact() {
         return notExact;
     }
-
-    /*
-    public void savePrice(float price, int counter)
-    {
-        preferenceManager.addValue(price, counter);
-    }
-
-    public void calcAndSaveTime()
-    {
-        calendar = new GregorianCalendar();
-
-        time = "";
-
-        time = time + Integer.toString(calendar.get(Calendar.HOUR_OF_DAY)) + ":" + Integer.toString(calendar.get(Calendar.MINUTE));
-
-        Log.i("time", time);
-
-        preferenceManager.saveTime(time, preferenceManager.getCounter() + 100);
-    }    */
 }
