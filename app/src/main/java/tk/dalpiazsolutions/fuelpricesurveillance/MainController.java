@@ -40,8 +40,10 @@ import tk.dalpiazsolutions.fuelpricesurveillance.models.Item;
 
 public class MainController {
 
-    private MainActivity mainActivity;
+    private TabArticles tabArticles;
+    private TabFuel tabFuel;
     private MainModel mainModel;
+    private MainActivity mainActivity = new MainActivity();
     private FuelDownloader fuelDownloader;
     private PreferenceManager preferenceManager;
     private Context context;
@@ -56,17 +58,36 @@ public class MainController {
     private boolean state = false;
 
 
-    public MainController(MainActivity mainActivity)
+    public MainController(TabArticles tabArticles)
     {
-        this.mainActivity = mainActivity;
-        this.context = mainActivity;
+        this.tabArticles = tabArticles;
+        this.context = tabArticles.getContext();
         mainModel = new MainModel(mainActivity);
-        preferenceManager = new PreferenceManager(mainActivity);
-        priceDB = Room.databaseBuilder(mainActivity.getApplicationContext(), PriceDatabase.class, "priceDB")
+        preferenceManager = new PreferenceManager(tabArticles.getContext());
+        priceDB = Room.databaseBuilder(tabArticles.getContext().getApplicationContext(), PriceDatabase.class, "priceDB")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
-        articleDB = Room.databaseBuilder(context.getApplicationContext(), ArticleDatabase.class, "articleDB")
+        articleDB = Room.databaseBuilder(tabArticles.getContext().getApplicationContext(), ArticleDatabase.class, "articleDB")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build();
+        priceManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context.getApplicationContext(), AlarmReceiver.class);
+        priceIntent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, intent, 0);
+    }
+
+    public MainController(TabFuel tabFuel)
+    {
+        this.tabFuel = tabFuel;
+        this.context = tabFuel.getContext();
+        mainModel = new MainModel(mainActivity);
+        preferenceManager = new PreferenceManager(tabFuel.getContext());
+        priceDB = Room.databaseBuilder(tabFuel.getContext().getApplicationContext(), PriceDatabase.class, "priceDB")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build();
+        articleDB = Room.databaseBuilder(tabFuel.getContext().getApplicationContext(), ArticleDatabase.class, "articleDB")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
@@ -194,6 +215,9 @@ public class MainController {
         ItemDAO itemDAO = priceDB.getItemDAO();
         itemDAO.nukeTable();
         listPrices();
+
+        ArticleDAO articleDAO = articleDB.getArticleDAO();
+        articleDAO.nukeTable();
     }
 
     public void startMonitoring()
@@ -230,7 +254,7 @@ public class MainController {
             }
         }
 
-        mainActivity.setArrayAdapter(new ArrayAdapter(mainActivity, android.R.layout.simple_list_item_1, textPrices));
+        tabFuel.setArrayAdapter(new ArrayAdapter(tabFuel.getContext(), android.R.layout.simple_list_item_1, textPrices));
     }
 
     public float getPrice(boolean cheapest)
@@ -340,27 +364,50 @@ public class MainController {
                 articles.add(matcher.group(1));
             }
 
+            boolean alreadySaved = false;
             for(int i = 0; i < articles.size(); i++)
             {
                 Log.i("article", articles.get(i));
                 if(articles.get(i).toLowerCase().contains("öl") || articles.get(i).toLowerCase().contains("benzin") || articles.get(i).toLowerCase().contains("diesel") || articles.get(i).toLowerCase().contains("kraftstoff") || articles.get(i).toLowerCase().contains("tanker") || articles.get(i).toLowerCase().contains("bombe"))
                 {
+                    Calendar calendar = Calendar.getInstance();
+                    String date = String.format(Locale.getDefault(), "%d:%d:%d", calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR));
+                    Article article = new Article();
+                    article.setText(articles.get(i));
+                    article.setDate(date);
+                    ArticleDAO articleDAO = articleDB.getArticleDAO();
+
+                    List<Article> savedArticles = articleDAO.getArticles();
+
+                    for(int x = 0; x < savedArticles.size(); x++)
+                    {
+                        if(savedArticles.get(x).getText().equals(article.getText()))
+                        {
+                            alreadySaved = true;
+                        }
+                    }
+
+                    if(!alreadySaved)
+                    {
+                        articleDAO.insert(article);
+                        alreadySaved = false;
+                    }
+
                     if(!preferenceManager.getNotified())
                     {
-                        Calendar calendar = Calendar.getInstance();
-                        String date = String.format(Locale.getDefault(), "%d:%d:%d", calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR));
-                        Article article = new Article();
-                        article.setText(articles.get(i));
-                        article.setDate(date);
-                        ArticleDAO articleDAO = articleDB.getArticleDAO();
-                        articleDAO.insert(article);
-
-
                         Notifier notifier = new Notifier(context);
                         notifier.throwNotification("News", String.format(Locale.getDefault(), context.getString(R.string.news), articles.get(i)));
                         preferenceManager.setNotified();
                     }
+
+                    if(tabArticles != null)
+                    {
+                        tabArticles.listArticle(article.getText());
+                    }
                 }
+            }
+            if(tabArticles != null) {
+                tabArticles.setArrayAdapter(new ArrayAdapter(tabArticles.getContext(), android.R.layout.simple_list_item_1, articles));
             }
         } catch (ExecutionException e) {
             e.printStackTrace();

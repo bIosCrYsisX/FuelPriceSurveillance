@@ -15,5 +15,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         mainController = new MainController(context);
         mainController.insertPrice(mainController.getPrice(false));
         mainController.insertPrice(mainController.getPrice(true));
+        mainController.getArticles();
     }
 }
