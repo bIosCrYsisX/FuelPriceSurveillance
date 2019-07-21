@@ -254,7 +254,9 @@ public class MainController {
             }
         }
 
-        tabFuel.setArrayAdapter(new ArrayAdapter(tabFuel.getContext(), android.R.layout.simple_list_item_1, textPrices));
+        if(tabFuel != null) {
+            tabFuel.setArrayAdapter(new ArrayAdapter(tabFuel.getContext(), android.R.layout.simple_list_item_1, textPrices));
+        }
     }
 
     public float getPrice(boolean cheapest)
@@ -413,6 +415,23 @@ public class MainController {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void getRelevantArticles()
+    {
+        ArticleDAO articleDAO = articleDB.getArticleDAO();
+        List<Article> articles = articleDAO.getArticles();
+        LinkedList<String> textArticles = new LinkedList<>();
+
+        for(int i = 0; i < articles.size(); i++)
+        {
+            textArticles.add(String.format(Locale.getDefault(), "%s, %s", articles.get(i).getText(), articles.get(i).getDate()));
+        }
+
+        if(tabArticles != null)
+        {
+            tabArticles.setArrayAdapter(new ArrayAdapter(tabArticles.getContext(), android.R.layout.simple_list_item_1, textArticles));
         }
     }
 

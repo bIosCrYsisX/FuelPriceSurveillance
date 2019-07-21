@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -37,6 +38,8 @@ public class TabArticles extends Fragment {
     private String mParam2;
     private ListView articleView;
     private TextView txtArticle;
+    private Button btnAllArticles;
+    private Button btnRelevantArticles;
     private ArrayAdapter articleAdapter;
     private MainController mainController;
 
@@ -86,10 +89,26 @@ public class TabArticles extends Fragment {
 
         articleView = view.findViewById(R.id.listArticles);
         txtArticle = view.findViewById(R.id.txtArticle);
+        btnAllArticles = view.findViewById(R.id.btnAllArticles);
+        btnRelevantArticles = view.findViewById(R.id.btnRelevantArticles);
 
         txtArticle.setText("Kein relevanter Artikel");
 
         mainController = new MainController(this);
+
+        btnAllArticles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainController.getArticles();
+            }
+        });
+
+        btnRelevantArticles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainController.getRelevantArticles();
+            }
+        });
 
         mainController.getArticles();
         mainController.listArticles();
