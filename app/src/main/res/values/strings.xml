@@ -24,7 +24,7 @@
     <string name="articleFileName">article%d</string>
     <string name="articleFileNameWAL">article%d-wal</string>
     <string name="articleFileNameSHM">article%d-shm</string>
-    <string name="news">"%s" könnte sich auf den Kraftstoffpreis auswirken</string>
+    <string name="news">\"%s\" könnte sich auf den Kraftstoffpreis auswirken</string>
     <string name="allArticles">Alle Artikel</string>
     <string name="relevantArticles">Relevante Artikel</string>
 

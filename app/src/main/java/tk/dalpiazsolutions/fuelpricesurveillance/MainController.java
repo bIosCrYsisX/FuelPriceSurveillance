@@ -362,10 +362,25 @@ public class MainController {
             Pattern pattern = Pattern.compile("aria-expanded=\"false\">(.*?)</a>");
             Matcher matcher = pattern.matcher(site);
 
+            String formattedArticle;
             LinkedList<String> articles = new LinkedList<>();
             while (matcher.find())
             {
-                articles.add(matcher.group(1));
+                formattedArticle = matcher.group(1);
+                int lowerBorder = 0;
+                while (formattedArticle.charAt(lowerBorder) == ' ')
+                {
+                    lowerBorder++;
+                }
+                int upperBoarder = formattedArticle.length() - 1;
+                while (formattedArticle.charAt(upperBoarder) == ' ')
+                {
+                    upperBoarder--;
+                }
+
+                formattedArticle = formattedArticle.substring(lowerBorder, upperBoarder + 1);
+
+                articles.add(formattedArticle);
             }
 
             boolean alreadySaved = false;
@@ -406,6 +421,8 @@ public class MainController {
 
                     if(!alreadySaved)
                     {
+                        Notifier notifier = new Notifier(context);
+                        notifier.throwNotification("News", String.format(Locale.getDefault(), context.getString(R.string.news), articles.get(i)));
                         articleDAO.insert(article);
                         alreadySaved = false;
                     }
